@@ -1,4 +1,5 @@
-const FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+const FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/")
+var store;
 
 // Log the user in and out on click
 const popupUri = "popup.html";
@@ -10,8 +11,8 @@ $("#logout button").click(() => solid.auth.logout());
  */
 async function loadProfile() {
   // Set up a local data store and associated data fetcher
-  const store = $rdf.graph();
-  const fetcher = new $rdf.Fetcher(store);
+  store = $rdf.graph();
+  var fetcher = new $rdf.Fetcher(store);
 
   // Load the person's data into the store
   const person = $("#profile").val();
@@ -57,11 +58,13 @@ solid.auth.trackSession(session => {
  * 
  * @param {*} fileName 
  */
-function emptyChat(fileName) {
-  var emptyChat = new Object();
-  emptyChat.chatNo = 1;
-  emptyChat.messages = new Array();
-  SolidFileClient.updateFile(fileName, JSON.stringify(emptyChat));
+function emptyChat(fileName, content) {
+  var text = new Object();
+  text.chatNo = 1;
+  text.messages = new Array();
+  text.messages.unshift(content);
+    console.log(text.messages);
+  SolidFileClient.updateFile(fileName, JSON.stringify(text));
 }
 
 /**
@@ -69,8 +72,8 @@ function emptyChat(fileName) {
  */
 async function createOwnFile() {
   //creates a new empty chat file
-  emptyChat($("#public").val() + "/chat01.json");
-  emptyChat($("#public").val() + "/chat01.txt"); //just in case
+  emptyChat($("#public").val() + "/chat01.txt", ""); //Creating turtle file
+  emptyChat($("#public").val() + "/chat01.ttl", "@prefix foaf: <http://xmlns.com/foaf/0.1/> ."); //just in case
   //clears the screen messages
   $(".chat_container").empty();
 }
@@ -81,18 +84,27 @@ $("#create").click(createOwnFile);
  */
 async function send() {
   var text = $("#content").val(); //get the text from the input box
-  if (text !== "") { //if there there are messages to send
-    SolidFileClient.readFile($("#public").val() + "/chat01.json").then(function (value) {
+  var sender = $("#public").val(); //Get the sender of the message (user)
+  var test = '<#this>  a  <#Example> .';
+  var tuple = "<profileSender.ttl#me>  " + text + "  <profileReciever.ttl#me> " + ".";
+    console.log(tuple);
+    console.log(test);
+  var doc = $rdf.sym($("#public").val() + "/chat01.ttl");
+  /*if (text !== "") { //if there are messages to send
+    SolidFileClient.readFile($("#public").val() + "/chat01.ttl").then(function (value) {
       var chat = JSON.parse(value); //Parse the content
       chat.messages.push(getMessageObject(text)); //Append the new message
       SolidFileClient.updateFile($("#public").val() + "/chat01.json", JSON.stringify(chat)); //Store it
       SolidFileClient.updateFile($("#public").val() + "/chat01.txt", JSON.stringify(chat)); //testing purposes
-    });
+    });*/
+    //$rdf.parse(tuple, store, doc.uri, 'text/turtle');
+    $rdf.parse(test, store, doc.uri, 'text/turtle');
+    var textT = $rdf.serialize(doc, store, 'text/turtle');
     //append the message to the chat pannel
-    $(".chat_container").append(generateMessage(text));
+    $(".chat_container").append(generateMessage(textT));
     //set the input box to blank
     $("#content").val("");
-  }
+  //}
 }
 $("#enviar").click(send);
 
