@@ -18,6 +18,12 @@
           <i class="fas fa-user"></i>
         </div>
       </a>
+      <a class="menu-item" >
+        <div>
+          <input #idfileUrl  >
+          <button id="darPermisos" (click)="givePermission(idfileUrl.value)">Dar Permisos</button>
+        </div>
+      </a>
       <a class="menu-item profile-menu" (click)="logout()">
         <div>
             <i class="fas fa-sign-out-alt"></i>

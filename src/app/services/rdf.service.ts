@@ -769,6 +769,7 @@ export class RdfService {
   async setPermissions(resourceUri: string, webId: string) {
     const aclUri = resourceUri + '.acl';
     const aclFile = this.store.sym(aclUri);
+    await console.log("hola");
     const file = this.store.sym(resourceUri);
     const webIdFile = this.store.sym(webId);
 
